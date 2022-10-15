@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Library</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="./script.js" defer></script>
+</head>
+<body>
+
+    <div class="overlay" onclick="overlayOff()"></div>
+
+    <header>
+
+        <h1>My Library</h1>
+
+        <button onclick="toggleForm()">New Book</button>
+
+        <form style="display: none;">
+
+            <h2>New Book</h2>
+
+            <label for="title">Book Title</label>
+            <input
+            type="text"
+            name="title"
+            id="title"
+            placeholder="Title" />
+
+            <label for="author">Author</label>
+            <input
+            type="text"
+            name="author"
+            id="author"
+            placeholder="Author" />
+
+            <label for="pages">Pages</label>
+            <input
+            type="number"
+            name="pages"
+            id="pages"
+            placeholder="Pages" />
+
+            <div class="select">
+
+                <label for="status">Status</label>
+                <select name="status" id="status">
+                    <option value="read">Read</option>
+                    <option value="not-read">Not Read</option>
+                </select>
+
+            </div>
+
+            <button type="button" onclick="addBookToLibrary()">
+                Add Book
+            </button>
+
+        </form>
+
+    </header>
+
+    <main class="book-container">
+
+        <div class="book">
+            <div>Title</div>
+            <div>Author</div>
+            <div>Pages</div>
+            <div>Info</div>
+            <div>Status</div>
+        </div>
+
+    </main>
+
+    <footer>
+        By <a href="https://github.com/rolastic">rolastic</a>
+    </footer>
+
+</body>
+</html>
