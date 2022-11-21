@@ -1,4 +1,4 @@
-class book {
+class Book {
     constructor(title, author, pages, read) {
         this.title = title;
         this.author = author;
@@ -13,21 +13,21 @@ class book {
     }
 }
 
-const theHobbit = new book(
+const theHobbit = new Book(
     'The Hoobit',
     'J.R.R. Tolkien',
     295,
     'Read'
 );
 
-const harryPotterPhilosopher = new book(
+const harryPotterPhilosopher = new Book(
     'Harry Potter and the Philosopher\'s Stone',
     'J. K. Rowling',
     223,
     'Not Read'
 );
 
-const taleTwoCities = new book(
+const taleTwoCities = new Book(
     'A Tale of Two Cities',
     'Charles Dickens',
     448,
@@ -57,7 +57,7 @@ function displayBook() {
         const removeBtn = document.createElement('button');
         const toggleRead = document.createElement('button');
 
-        book.classList.add('book');
+        book.fList.add('book');
         bookTitle.classList.add('book-title');
         bookAuthor.classList.add('book-author');
         bookInfo.classList.add('book-info');
@@ -103,7 +103,7 @@ function addBookToLibrary() {
     if (!title || !author || !pages) {return;}
     (preRead === 'read') ? read = 'Read' : read = 'Not Read';
 
-    const newBook = new book(title, author, pages, read);
+    const newBook = new Book(title, author, pages, read);
     myLibrary.push(newBook);
     toggleForm();
     overlayOff();
