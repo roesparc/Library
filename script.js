@@ -57,7 +57,7 @@ function displayBook() {
         const removeBtn = document.createElement('button');
         const toggleRead = document.createElement('button');
 
-        book.fList.add('book');
+        book.classList.add('book');
         bookTitle.classList.add('book-title');
         bookAuthor.classList.add('book-author');
         bookInfo.classList.add('book-info');
