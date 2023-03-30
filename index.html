@@ -6,7 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Library</title>
     <link rel="stylesheet" href="./style.css" />
-    <script src="./script.js" defer></script>
+    <script
+      src="https://kit.fontawesome.com/022ac70b51.js"
+      crossorigin="anonymous"
+    ></script>
+    <script type="module" src="script.js"></script>
   </head>
   <body>
     <div class="overlay" onclick="hideForm()"></div>
@@ -15,6 +19,14 @@
       <h1>My Library</h1>
 
       <button onclick="displayForm()">New Book</button>
+
+      <div id="user-container">
+        <i class="fa-solid fa-spinner fa-spin-pulse"></i>
+        <img hidden="true" id="user-pic" />
+        <div hidden="true" id="user-name"></div>
+        <button hidden="true" id="sign-in">Sign In</button>
+        <button hidden="true" id="sign-out">Sign Out</button>
+      </div>
 
       <form onsubmit="addBookToLibrary(event)">
         <h2>New Book</h2>
@@ -68,6 +80,11 @@
       </div>
     </main>
 
-    <footer>By <a href="https://github.com/roesparc">roesparc</a></footer>
+    <footer>
+      <p>By <a href="https://github.com/roesparc/">roesparc</a></p>
+      <a href="https://github.com/roesparc/"
+        ><i class="fa-brands fa-github"></i
+      ></a>
+    </footer>
   </body>
 </html>
