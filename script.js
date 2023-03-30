@@ -5,31 +5,18 @@ class Book {
     this.pages = pages;
     this.read = read;
   }
-  info() {
-    return `${this.title} by
-        ${this.author},
-        ${this.pages} pages,
-        ${this.read}.`;
-  }
 }
 
-let myLibrary = [];
-
-const theHobbit = new Book("The Hobbit", "J.R.R. Tolkien", 295, "Read");
-
-const harryPotterPhilosopher = new Book(
-  "Harry Potter and the Philosopher's Stone",
-  "J. K. Rowling",
-  223,
-  "Not Read"
-);
-
-const taleTwoCities = new Book(
-  "A Tale of Two Cities",
-  "Charles Dickens",
-  448,
-  "Not Read"
-);
+const myLibrary = [
+  new Book("The Hobbit", "J.R.R. Tolkien", 295, "Read"),
+  new Book(
+    "Harry Potter and the Philosopher's Stone",
+    "J. K. Rowling",
+    223,
+    "Not Read"
+  ),
+  new Book("A Tale of Two Cities", "Charles Dickens", 448, "Not Read"),
+];
 
 function displayForm() {
   document.querySelector("form").style.display = "block";
@@ -53,16 +40,14 @@ function displayBook() {
     const bookTitle = document.createElement("div");
     const bookAuthor = document.createElement("div");
     const bookPages = document.createElement("div");
-    const bookInfo = document.createElement("div");
-    const removeBtn = document.createElement("button");
     const toggleRead = document.createElement("button");
+    const removeBtn = document.createElement("button");
 
     book.classList.add("book");
     bookTitle.classList.add("book-title");
     bookAuthor.classList.add("book-author");
-    bookInfo.classList.add("book-info");
-    removeBtn.classList.add("remove-book");
     toggleRead.classList.add("toggle-read");
+    removeBtn.classList.add("remove-book");
 
     removeBtn.setAttribute("onclick", `removeBook(${[i]})`);
     toggleRead.setAttribute("onclick", `toggleRead(${[i]})`);
@@ -70,9 +55,8 @@ function displayBook() {
     bookTitle.textContent = myLibrary[i].title;
     bookAuthor.textContent = myLibrary[i].author;
     bookPages.textContent = myLibrary[i].pages;
-    bookInfo.textContent = myLibrary[i].info();
-    removeBtn.textContent = "Remove";
     toggleRead.textContent = myLibrary[i].read;
+    removeBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
 
     if (toggleRead.textContent === "Read") {
       toggleRead.classList.remove("not-read");
@@ -86,7 +70,6 @@ function displayBook() {
     book.appendChild(bookTitle);
     book.appendChild(bookAuthor);
     book.appendChild(bookPages);
-    book.appendChild(bookInfo);
     book.appendChild(toggleRead);
     book.appendChild(removeBtn);
   }
@@ -121,10 +104,66 @@ function addBookToLibrary(event) {
   event.preventDefault();
 }
 
-const init = (() => {
-  myLibrary.push(theHobbit);
-  myLibrary.push(harryPotterPhilosopher);
-  myLibrary.push(taleTwoCities);
+displayBook();
 
-  displayBook();
-})();
+const userPic = document.querySelector("#user-pic");
+const userName = document.querySelector("#user-name");
+const signInBtn = document.querySelector("#sign-in");
+const signOutBtn = document.querySelector("#sign-out");
+const userSpinner = document.querySelector(".fa-spinner");
+
+signInBtn.addEventListener("click", signIn);
+signOutBtn.addEventListener("click", signOutUser);
+
+// FIREBASE
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+  onAuthStateChanged,
+} from "https://www.gstatic.com/firebasejs/9.18.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCIrXgt3lYFUxAbteiGgV_e-CNmMrd74cQ",
+  authDomain: "my-library-b1c95.firebaseapp.com",
+  projectId: "my-library-b1c95",
+  storageBucket: "my-library-b1c95.appspot.com",
+  messagingSenderId: "911289976560",
+  appId: "1:911289976560:web:7418369f5d7d738d072435",
+};
+
+async function signIn() {
+  const provider = new GoogleAuthProvider();
+  await signInWithPopup(getAuth(), provider);
+}
+
+function signOutUser() {
+  signOut(getAuth());
+}
+
+function initFirebaseAuth() {
+  onAuthStateChanged(getAuth(), (user) => {
+    if (user) {
+      userPic.src = user.photoURL;
+      userName.textContent = user.displayName;
+
+      userPic.removeAttribute("hidden");
+      userName.removeAttribute("hidden");
+      signOutBtn.removeAttribute("hidden");
+      signInBtn.setAttribute("hidden", "true");
+    } else {
+      userPic.setAttribute("hidden", "true");
+      userName.setAttribute("hidden", "true");
+      signOutBtn.setAttribute("hidden", "true");
+      signInBtn.removeAttribute("hidden");
+    }
+
+    userSpinner.style.display = "none";
+  });
+}
+
+initializeApp(firebaseConfig);
+initFirebaseAuth();
