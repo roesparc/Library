@@ -8,7 +8,7 @@ class Book {
   }
 }
 
-let myLibrary = [];
+const myLibrary = [];
 
 function displayForm() {
   document.querySelector("form").style.display = "block";
@@ -136,6 +136,7 @@ import {
   onSnapshot,
   updateDoc,
   doc,
+  where,
   serverTimestamp,
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-firestore.js";
@@ -152,6 +153,8 @@ const firebaseConfig = {
 async function signIn() {
   const provider = new GoogleAuthProvider();
   await signInWithPopup(getAuth(), provider);
+
+  bookSpinner.style.display = "block";
 }
 
 function signOutUser() {
@@ -160,6 +163,8 @@ function signOutUser() {
 
 function initFirebaseAuth() {
   onAuthStateChanged(getAuth(), (user) => {
+    myLibrary.splice(0, myLibrary.length);
+
     if (user) {
       userPic.src = user.photoURL;
       userName.textContent = user.displayName;
@@ -168,11 +173,16 @@ function initFirebaseAuth() {
       userName.removeAttribute("hidden");
       signOutBtn.removeAttribute("hidden");
       signInBtn.setAttribute("hidden", "true");
+
+      loadBooks();
     } else {
       userPic.setAttribute("hidden", "true");
       userName.setAttribute("hidden", "true");
       signOutBtn.setAttribute("hidden", "true");
       signInBtn.removeAttribute("hidden");
+
+      bookSpinner.style.display = "none";
+      displayBook();
     }
 
     userSpinner.style.display = "none";
@@ -185,6 +195,7 @@ async function saveBook(e) {
   try {
     await addDoc(collection(getFirestore(), "books"), {
       timestamp: serverTimestamp(),
+      userId: getAuth().currentUser.uid,
       title: document.querySelector("#title").value,
       author: document.querySelector("#author").value,
       pages: document.querySelector("#pages").value,
@@ -198,6 +209,7 @@ async function saveBook(e) {
 function loadBooks() {
   const booksQuery = query(
     collection(getFirestore(), "books"),
+    where("userId", "==", getAuth().currentUser.uid),
     orderBy("timestamp", "asc")
   );
 
@@ -231,4 +243,3 @@ async function deleteBook(bookId) {
 
 initializeApp(firebaseConfig);
 initFirebaseAuth();
-loadBooks();
