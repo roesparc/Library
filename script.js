@@ -1,3 +1,9 @@
+const newBookBtn = document.querySelector("#new-book");
+const formOverlay = document.querySelector("#overlay");
+const bookForm = document.querySelector("form");
+
+const myLibrary = [];
+
 class Book {
   constructor(title, author, pages, readStatus, id) {
     this.title = title;
@@ -8,16 +14,14 @@ class Book {
   }
 }
 
-const myLibrary = [];
-
 function displayForm() {
-  document.querySelector("form").style.display = "block";
-  document.querySelector("#overlay").style.display = "block";
+  bookForm.style.display = "block";
+  formOverlay.style.display = "block";
 }
 
 function hideForm() {
-  document.querySelector("#overlay").style.display = "none";
-  document.querySelector("form").style.display = "none";
+  formOverlay.style.display = "none";
+  bookForm.style.display = "none";
 }
 
 function displayBook() {
@@ -94,28 +98,11 @@ function addBookToLibrary(book, id) {
   myLibrary.push(
     new Book(book.title, book.author, book.pages, book.readStatus, id)
   );
+
   hideForm();
   displayBook();
-  document.querySelector("form").reset();
+  bookForm.reset();
 }
-
-// displayBook();
-
-const userPic = document.querySelector("#user-pic");
-const userName = document.querySelector("#user-name");
-const signInBtn = document.querySelector("#sign-in");
-const signOutBtn = document.querySelector("#sign-out");
-const userSpinner = document.querySelector("#user-spinner");
-const bookSpinner = document.querySelector("#books-spinner");
-const newBookBtn = document.querySelector("#new-book");
-const formOverlay = document.querySelector("#overlay");
-const bookForm = document.querySelector("form");
-
-signInBtn.addEventListener("click", signIn);
-signOutBtn.addEventListener("click", signOutUser);
-newBookBtn.addEventListener("click", displayForm);
-formOverlay.addEventListener("click", hideForm);
-bookForm.addEventListener("submit", saveBook);
 
 // FIREBASE
 
@@ -141,6 +128,15 @@ import {
   deleteDoc,
 } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-firestore.js";
 
+const userPic = document.querySelector("#user-pic");
+const userName = document.querySelector("#user-name");
+const signInBtn = document.querySelector("#sign-in");
+const signOutBtn = document.querySelector("#sign-out");
+const userSpinner = document.querySelector("#user-spinner");
+const bookSpinner = document.querySelector("#books-spinner");
+
+let unsubscribeSnapshot;
+
 const firebaseConfig = {
   apiKey: "AIzaSyCIrXgt3lYFUxAbteiGgV_e-CNmMrd74cQ",
   authDomain: "my-library-b1c95.firebaseapp.com",
@@ -164,6 +160,7 @@ function signOutUser() {
 function initFirebaseAuth() {
   onAuthStateChanged(getAuth(), (user) => {
     myLibrary.splice(0, myLibrary.length);
+    displayBook();
 
     if (user) {
       userPic.src = user.photoURL;
@@ -181,25 +178,44 @@ function initFirebaseAuth() {
       signOutBtn.setAttribute("hidden", "true");
       signInBtn.removeAttribute("hidden");
 
+      if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+        unsubscribeSnapshot = null;
+      }
+
       bookSpinner.style.display = "none";
-      displayBook();
     }
 
     userSpinner.style.display = "none";
   });
 }
 
-async function saveBook(e) {
+function onBookFormSubmit(e) {
   e.preventDefault();
 
+  const bookValues = {
+    title: document.querySelector("#title").value,
+    author: document.querySelector("#author").value,
+    pages: document.querySelector("#pages").value,
+    readStatus: document.querySelector("#status").value,
+  };
+
+  if (getAuth().currentUser) {
+    saveBook(bookValues);
+  } else {
+    addBookToLibrary(bookValues);
+  }
+}
+
+async function saveBook(bookValues) {
   try {
     await addDoc(collection(getFirestore(), "books"), {
       timestamp: serverTimestamp(),
       userId: getAuth().currentUser.uid,
-      title: document.querySelector("#title").value,
-      author: document.querySelector("#author").value,
-      pages: document.querySelector("#pages").value,
-      readStatus: document.querySelector("#status").value,
+      title: bookValues.title,
+      author: bookValues.author,
+      pages: bookValues.pages,
+      readStatus: bookValues.readStatus,
     });
   } catch (error) {
     console.error("Error writing new message to Firebase Database", error);
@@ -213,7 +229,7 @@ function loadBooks() {
     orderBy("timestamp", "asc")
   );
 
-  onSnapshot(booksQuery, (snapshot) => {
+  unsubscribeSnapshot = onSnapshot(booksQuery, (snapshot) => {
     snapshot.docChanges().forEach((change) => {
       if (change.type === "added") {
         addBookToLibrary(change.doc.data(), change.doc.id);
@@ -243,3 +259,11 @@ async function deleteBook(bookId) {
 
 initializeApp(firebaseConfig);
 initFirebaseAuth();
+
+// DOCUMENT LISTENERS
+
+signInBtn.addEventListener("click", signIn);
+signOutBtn.addEventListener("click", signOutUser);
+newBookBtn.addEventListener("click", displayForm);
+formOverlay.addEventListener("click", hideForm);
+bookForm.addEventListener("submit", onBookFormSubmit);
