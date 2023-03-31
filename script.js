@@ -7,24 +7,15 @@ class Book {
   }
 }
 
-const myLibrary = [
-  new Book("The Hobbit", "J.R.R. Tolkien", 295, "Read"),
-  new Book(
-    "Harry Potter and the Philosopher's Stone",
-    "J. K. Rowling",
-    223,
-    "Not Read"
-  ),
-  new Book("A Tale of Two Cities", "Charles Dickens", 448, "Not Read"),
-];
+let myLibrary = [];
 
 function displayForm() {
   document.querySelector("form").style.display = "block";
-  document.querySelector(".overlay").style.display = "block";
+  document.querySelector("#overlay").style.display = "block";
 }
 
 function hideForm() {
-  document.querySelector(".overlay").style.display = "none";
+  document.querySelector("#overlay").style.display = "none";
   document.querySelector("form").style.display = "none";
 }
 
@@ -40,37 +31,37 @@ function displayBook() {
     const bookTitle = document.createElement("div");
     const bookAuthor = document.createElement("div");
     const bookPages = document.createElement("div");
-    const toggleRead = document.createElement("button");
+    const readStatus = document.createElement("button");
     const removeBtn = document.createElement("button");
 
     book.classList.add("book");
     bookTitle.classList.add("book-title");
     bookAuthor.classList.add("book-author");
-    toggleRead.classList.add("toggle-read");
+    readStatus.classList.add("toggle-read");
     removeBtn.classList.add("remove-book");
 
-    removeBtn.setAttribute("onclick", `removeBook(${[i]})`);
-    toggleRead.setAttribute("onclick", `toggleRead(${[i]})`);
+    removeBtn.addEventListener("click", () => removeBook(i));
+    readStatus.addEventListener("click", () => toggleRead(i));
 
     bookTitle.textContent = myLibrary[i].title;
     bookAuthor.textContent = myLibrary[i].author;
     bookPages.textContent = myLibrary[i].pages;
-    toggleRead.textContent = myLibrary[i].read;
+    readStatus.textContent = myLibrary[i].read;
     removeBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
 
-    if (toggleRead.textContent === "Read") {
-      toggleRead.classList.remove("not-read");
-      toggleRead.classList.add("read");
+    if (readStatus.textContent === "Read") {
+      readStatus.classList.remove("not-read");
+      readStatus.classList.add("read");
     } else {
-      toggleRead.classList.remove("read");
-      toggleRead.classList.add("not-read");
+      readStatus.classList.remove("read");
+      readStatus.classList.add("not-read");
     }
 
     bookContainer.appendChild(book);
     book.appendChild(bookTitle);
     book.appendChild(bookAuthor);
     book.appendChild(bookPages);
-    book.appendChild(toggleRead);
+    book.appendChild(readStatus);
     book.appendChild(removeBtn);
   }
 }
@@ -88,32 +79,32 @@ function toggleRead(index) {
   displayBook();
 }
 
-function addBookToLibrary(event) {
-  const title = document.querySelector("#title").value;
-  const author = document.querySelector("#author").value;
-  const pages = document.querySelector("#pages").value;
-  const preRead = document.querySelector("#status").value;
+function addBookToLibrary(book) {
   let read = "";
-  preRead === "read" ? (read = "Read") : (read = "Not Read");
+  book.preRead === "read" ? (read = "Read") : (read = "Not Read");
 
-  const newBook = new Book(title, author, pages, read);
-  myLibrary.push(newBook);
+  myLibrary.push(new Book(book.title, book.author, book.pages, read));
   hideForm();
   displayBook();
   document.querySelector("form").reset();
-  event.preventDefault();
 }
 
-displayBook();
+// displayBook();
 
 const userPic = document.querySelector("#user-pic");
 const userName = document.querySelector("#user-name");
 const signInBtn = document.querySelector("#sign-in");
 const signOutBtn = document.querySelector("#sign-out");
 const userSpinner = document.querySelector(".fa-spinner");
+const newBookBtn = document.querySelector("#new-book");
+const formOverlay = document.querySelector("#overlay");
+const bookForm = document.querySelector("form");
 
 signInBtn.addEventListener("click", signIn);
 signOutBtn.addEventListener("click", signOutUser);
+newBookBtn.addEventListener("click", displayForm);
+formOverlay.addEventListener("click", hideForm);
+bookForm.addEventListener("submit", saveBook);
 
 // FIREBASE
 
@@ -125,6 +116,18 @@ import {
   signOut,
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  query,
+  orderBy,
+  onSnapshot,
+  setDoc,
+  updateDoc,
+  doc,
+  serverTimestamp,
+} from "https://www.gstatic.com/firebasejs/9.18.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCIrXgt3lYFUxAbteiGgV_e-CNmMrd74cQ",
@@ -165,5 +168,37 @@ function initFirebaseAuth() {
   });
 }
 
+async function saveBook(e) {
+  e.preventDefault();
+
+  try {
+    await addDoc(collection(getFirestore(), "books"), {
+      timestamp: serverTimestamp(),
+      title: document.querySelector("#title").value,
+      author: document.querySelector("#author").value,
+      pages: document.querySelector("#pages").value,
+      preRead: document.querySelector("#status").value,
+    });
+  } catch (error) {
+    console.error("Error writing new message to Firebase Database", error);
+  }
+}
+
+function loadBooks() {
+  const booksQuery = query(
+    collection(getFirestore(), "books"),
+    orderBy("timestamp", "asc")
+  );
+
+  onSnapshot(booksQuery, (snapshot) => {
+    snapshot.docChanges().forEach((change) => {
+      if (change.type === "added") {
+        addBookToLibrary(change.doc.data());
+      }
+    });
+  });
+}
+
 initializeApp(firebaseConfig);
 initFirebaseAuth();
+loadBooks();
