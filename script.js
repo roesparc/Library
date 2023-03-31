@@ -1,9 +1,10 @@
 class Book {
-  constructor(title, author, pages, read) {
+  constructor(title, author, pages, readStatus, id) {
     this.title = title;
     this.author = author;
     this.pages = pages;
-    this.read = read;
+    this.readStatus = readStatus;
+    this.id = id;
   }
 }
 
@@ -46,7 +47,7 @@ function displayBook() {
     bookTitle.textContent = myLibrary[i].title;
     bookAuthor.textContent = myLibrary[i].author;
     bookPages.textContent = myLibrary[i].pages;
-    readStatus.textContent = myLibrary[i].read;
+    readStatus.textContent = myLibrary[i].readStatus;
     removeBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
 
     if (readStatus.textContent === "Read") {
@@ -72,18 +73,24 @@ function removeBook(index) {
 }
 
 function toggleRead(index) {
-  myLibrary[index].read === "Not Read"
-    ? (myLibrary[index].read = "Read")
-    : (myLibrary[index].read = "Not Read");
+  let newReadStatus = "";
+
+  myLibrary[index].readStatus === "Not Read"
+    ? (newReadStatus = "Read")
+    : (newReadStatus = "Not Read");
+
+  myLibrary[index].readStatus = newReadStatus;
+
+  if (myLibrary[index].id)
+    editReadStatus(myLibrary[index].id, { readStatus: newReadStatus });
 
   displayBook();
 }
 
-function addBookToLibrary(book) {
-  let read = "";
-  book.preRead === "read" ? (read = "Read") : (read = "Not Read");
-
-  myLibrary.push(new Book(book.title, book.author, book.pages, read));
+function addBookToLibrary(book, id) {
+  myLibrary.push(
+    new Book(book.title, book.author, book.pages, book.readStatus, id)
+  );
   hideForm();
   displayBook();
   document.querySelector("form").reset();
@@ -177,7 +184,7 @@ async function saveBook(e) {
       title: document.querySelector("#title").value,
       author: document.querySelector("#author").value,
       pages: document.querySelector("#pages").value,
-      preRead: document.querySelector("#status").value,
+      readStatus: document.querySelector("#status").value,
     });
   } catch (error) {
     console.error("Error writing new message to Firebase Database", error);
@@ -193,10 +200,19 @@ function loadBooks() {
   onSnapshot(booksQuery, (snapshot) => {
     snapshot.docChanges().forEach((change) => {
       if (change.type === "added") {
-        addBookToLibrary(change.doc.data());
+        addBookToLibrary(change.doc.data(), change.doc.id);
       }
     });
   });
+}
+
+async function editReadStatus(bookId, newReadStatus) {
+  try {
+    const bookRef = doc(getFirestore(), "books", bookId);
+    await updateDoc(bookRef, newReadStatus);
+  } catch (error) {
+    console.error("Error updating book: ", error);
+  }
 }
 
 initializeApp(firebaseConfig);
