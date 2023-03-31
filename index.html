@@ -13,12 +13,12 @@
     <script type="module" src="script.js"></script>
   </head>
   <body>
-    <div class="overlay" onclick="hideForm()"></div>
+    <div id="overlay"></div>
 
     <header>
       <h1>My Library</h1>
 
-      <button onclick="displayForm()">New Book</button>
+      <button id="new-book">New Book</button>
 
       <div id="user-container">
         <i class="fa-solid fa-spinner fa-spin-pulse"></i>
@@ -28,7 +28,7 @@
         <button hidden="true" id="sign-out">Sign Out</button>
       </div>
 
-      <form onsubmit="addBookToLibrary(event)">
+      <form>
         <h2>New Book</h2>
 
         <label for="title">Book Title</label>
