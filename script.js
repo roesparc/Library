@@ -68,7 +68,10 @@ function displayBook() {
 }
 
 function removeBook(index) {
+  if (myLibrary[index].id) deleteBook(myLibrary[index].id);
+
   myLibrary.splice(index, 1);
+
   displayBook();
 }
 
@@ -102,7 +105,8 @@ const userPic = document.querySelector("#user-pic");
 const userName = document.querySelector("#user-name");
 const signInBtn = document.querySelector("#sign-in");
 const signOutBtn = document.querySelector("#sign-out");
-const userSpinner = document.querySelector(".fa-spinner");
+const userSpinner = document.querySelector("#user-spinner");
+const bookSpinner = document.querySelector("#books-spinner");
 const newBookBtn = document.querySelector("#new-book");
 const formOverlay = document.querySelector("#overlay");
 const bookForm = document.querySelector("form");
@@ -130,10 +134,10 @@ import {
   query,
   orderBy,
   onSnapshot,
-  setDoc,
   updateDoc,
   doc,
   serverTimestamp,
+  deleteDoc,
 } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -203,6 +207,8 @@ function loadBooks() {
         addBookToLibrary(change.doc.data(), change.doc.id);
       }
     });
+
+    bookSpinner.style.display = "none";
   });
 }
 
@@ -212,6 +218,14 @@ async function editReadStatus(bookId, newReadStatus) {
     await updateDoc(bookRef, newReadStatus);
   } catch (error) {
     console.error("Error updating book: ", error);
+  }
+}
+
+async function deleteBook(bookId) {
+  try {
+    await deleteDoc(doc(getFirestore(), "books", bookId));
+  } catch (error) {
+    console.error("Error deleting book: ", error);
   }
 }
 
