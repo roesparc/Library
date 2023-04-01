@@ -2,7 +2,7 @@ const newBookBtn = document.querySelector("#new-book");
 const formOverlay = document.querySelector("#overlay");
 const bookForm = document.querySelector("form");
 
-const myLibrary = [];
+const bookLibrary = [];
 
 class Book {
   constructor(title, author, pages, readStatus, id) {
@@ -24,83 +24,76 @@ function hideForm() {
   bookForm.style.display = "none";
 }
 
-function displayBook() {
+function createBookElement(book, index) {
+  const newBook = document.createElement("div");
+  newBook.classList.add("book");
+
+  const bookTitle = document.createElement("h2");
+  bookTitle.classList.add("book-title");
+  bookTitle.textContent = book.title;
+
+  const bookAuthor = document.createElement("p");
+  bookAuthor.classList.add("book-author");
+  bookAuthor.textContent = `By ${book.author}`;
+
+  const bookPages = document.createElement("p");
+  bookPages.classList.add("book-pages");
+  bookPages.textContent = `Pages: ${book.pages}`;
+
+  const readStatusBtn = document.createElement("button");
+  readStatusBtn.textContent = book.readStatus;
+  readStatusBtn.classList.add("bookBtn");
+  book.readStatus === "Read" && readStatusBtn.classList.add("read");
+  readStatusBtn.addEventListener("click", () => toggleRead(book));
+
+  const removeBookBtn = document.createElement("button");
+  removeBookBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+  removeBookBtn.classList.add("bookBtn");
+  removeBookBtn.classList.add("remove-book");
+  removeBookBtn.addEventListener("click", () => removeBook(book, index));
+
+  newBook.appendChild(bookTitle);
+  newBook.appendChild(bookAuthor);
+  newBook.appendChild(bookPages);
+  newBook.appendChild(readStatusBtn);
+  newBook.appendChild(removeBookBtn);
+
+  return newBook;
+}
+
+function displayBooks() {
   const bookContainer = document.querySelector(".book-container");
+  bookContainer.textContent = "";
 
-  while (bookContainer.childNodes[2]) {
-    bookContainer.removeChild(bookContainer.childNodes[2]);
-  }
-
-  for (let i = 0; i < myLibrary.length; i++) {
-    const book = document.createElement("div");
-    const bookTitle = document.createElement("div");
-    const bookAuthor = document.createElement("div");
-    const bookPages = document.createElement("div");
-    const readStatus = document.createElement("button");
-    const removeBtn = document.createElement("button");
-
-    book.classList.add("book");
-    bookTitle.classList.add("book-title");
-    bookAuthor.classList.add("book-author");
-    readStatus.classList.add("toggle-read");
-    removeBtn.classList.add("remove-book");
-
-    removeBtn.addEventListener("click", () => removeBook(i));
-    readStatus.addEventListener("click", () => toggleRead(i));
-
-    bookTitle.textContent = myLibrary[i].title;
-    bookAuthor.textContent = myLibrary[i].author;
-    bookPages.textContent = myLibrary[i].pages;
-    readStatus.textContent = myLibrary[i].readStatus;
-    removeBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
-
-    if (readStatus.textContent === "Read") {
-      readStatus.classList.remove("not-read");
-      readStatus.classList.add("read");
-    } else {
-      readStatus.classList.remove("read");
-      readStatus.classList.add("not-read");
-    }
-
-    bookContainer.appendChild(book);
-    book.appendChild(bookTitle);
-    book.appendChild(bookAuthor);
-    book.appendChild(bookPages);
-    book.appendChild(readStatus);
-    book.appendChild(removeBtn);
-  }
+  bookLibrary.forEach((book, index) => {
+    bookContainer.appendChild(createBookElement(book, index));
+  });
 }
 
-function removeBook(index) {
-  if (myLibrary[index].id) deleteBook(myLibrary[index].id);
+function removeBook(book, index) {
+  if (book.id) deleteBook(book.id);
 
-  myLibrary.splice(index, 1);
+  bookLibrary.splice(index, 1);
 
-  displayBook();
+  displayBooks();
 }
 
-function toggleRead(index) {
-  let newReadStatus = "";
+function toggleRead(book) {
+  const newReadStatus = book.readStatus === "Read" ? "Not Read" : "Read";
+  book.readStatus = newReadStatus;
 
-  myLibrary[index].readStatus === "Not Read"
-    ? (newReadStatus = "Read")
-    : (newReadStatus = "Not Read");
+  if (book.id) editReadStatus(book.id, { readStatus: newReadStatus });
 
-  myLibrary[index].readStatus = newReadStatus;
-
-  if (myLibrary[index].id)
-    editReadStatus(myLibrary[index].id, { readStatus: newReadStatus });
-
-  displayBook();
+  displayBooks();
 }
 
 function addBookToLibrary(book, id) {
-  myLibrary.push(
+  bookLibrary.push(
     new Book(book.title, book.author, book.pages, book.readStatus, id)
   );
 
   hideForm();
-  displayBook();
+  displayBooks();
   bookForm.reset();
 }
 
@@ -158,36 +151,51 @@ function signOutUser() {
 }
 
 function initFirebaseAuth() {
-  onAuthStateChanged(getAuth(), (user) => {
-    myLibrary.splice(0, myLibrary.length);
-    displayBook();
+  onAuthStateChanged(getAuth(), handleUserAuthChange);
+}
 
-    if (user) {
-      userPic.src = user.photoURL;
-      userName.textContent = user.displayName;
+function handleUserAuthChange(user) {
+  clearLibraryDisplay();
+  clearUserDisplay();
 
-      userPic.removeAttribute("hidden");
-      userName.removeAttribute("hidden");
-      signOutBtn.removeAttribute("hidden");
-      signInBtn.setAttribute("hidden", "true");
+  if (user) {
+    displayUser(user);
+    signOutBtn.removeAttribute("hidden");
+    loadBooks();
+  } else {
+    signInBtn.removeAttribute("hidden");
+    unsubscribeBooksListener();
+    bookSpinner.style.display = "none";
+  }
 
-      loadBooks();
-    } else {
-      userPic.setAttribute("hidden", "true");
-      userName.setAttribute("hidden", "true");
-      signOutBtn.setAttribute("hidden", "true");
-      signInBtn.removeAttribute("hidden");
+  userSpinner.style.display = "none";
+}
 
-      if (unsubscribeSnapshot) {
-        unsubscribeSnapshot();
-        unsubscribeSnapshot = null;
-      }
+function clearLibraryDisplay() {
+  bookLibrary.splice(0, bookLibrary.length);
+  displayBooks();
+}
 
-      bookSpinner.style.display = "none";
-    }
+function clearUserDisplay() {
+  userPic.setAttribute("hidden", "true");
+  userName.setAttribute("hidden", "true");
+  signOutBtn.setAttribute("hidden", "true");
+  signInBtn.setAttribute("hidden", "true");
+}
 
-    userSpinner.style.display = "none";
-  });
+function displayUser(user) {
+  userPic.src = user.photoURL;
+  userPic.removeAttribute("hidden");
+
+  userName.textContent = user.displayName;
+  userName.removeAttribute("hidden");
+}
+
+function unsubscribeBooksListener() {
+  if (unsubscribeSnapshot) {
+    unsubscribeSnapshot();
+    unsubscribeSnapshot = null;
+  }
 }
 
 function onBookFormSubmit(e) {
@@ -222,13 +230,15 @@ async function saveBook(bookValues) {
   }
 }
 
-function loadBooks() {
-  const booksQuery = query(
+function createBooksQuery() {
+  return query(
     collection(getFirestore(), "books"),
     where("userId", "==", getAuth().currentUser.uid),
     orderBy("timestamp", "asc")
   );
+}
 
+function subscribeToBooksQuery(booksQuery) {
   unsubscribeSnapshot = onSnapshot(booksQuery, (snapshot) => {
     snapshot.docChanges().forEach((change) => {
       if (change.type === "added") {
@@ -238,6 +248,11 @@ function loadBooks() {
 
     bookSpinner.style.display = "none";
   });
+}
+
+function loadBooks() {
+  const booksQuery = createBooksQuery();
+  subscribeToBooksQuery(booksQuery);
 }
 
 async function editReadStatus(bookId, newReadStatus) {
