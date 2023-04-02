@@ -42,13 +42,12 @@ function createBookElement(book, index) {
 
   const readStatusBtn = document.createElement("button");
   readStatusBtn.textContent = book.readStatus;
-  readStatusBtn.classList.add("bookBtn");
+  readStatusBtn.classList.add("read-status");
   book.readStatus === "Read" && readStatusBtn.classList.add("read");
   readStatusBtn.addEventListener("click", () => toggleRead(book));
 
   const removeBookBtn = document.createElement("button");
   removeBookBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
-  removeBookBtn.classList.add("bookBtn");
   removeBookBtn.classList.add("remove-book");
   removeBookBtn.addEventListener("click", () => removeBook(book, index));
 
@@ -62,7 +61,7 @@ function createBookElement(book, index) {
 }
 
 function displayBooks() {
-  const bookContainer = document.querySelector(".book-container");
+  const bookContainer = document.querySelector("#book-container");
   bookContainer.textContent = "";
 
   bookLibrary.forEach((book, index) => {
