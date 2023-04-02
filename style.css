@@ -1,6 +1,7 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400&display=swap");
+
 :root {
-  position: relative;
-  min-height: 100%;
+  font-family: "Montserrat", sans-serif;
   font-size: 12px;
 
   --grey-opac: #8080807a;
@@ -21,102 +22,103 @@
 * {
   padding: 0;
   margin: 0;
-  font-family: sans-serif;
-  font-size: 1.3rem;
 }
 
 body {
-  margin-bottom: 6rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 button {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.5rem;
   cursor: pointer;
   border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--standard-border-radius);
+}
+
+a,
+p {
+  font-size: 1.5rem;
+}
+
+.fa-spinner {
+  color: var(--grey-hover);
+}
+
+#overlay {
+  position: fixed;
+  display: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #00000080;
 }
 
 header {
-  width: 60%;
-  margin: 0 auto;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  box-shadow: 0 1px 4px #c0c0c0;
 }
 
 header h1 {
+  font-weight: lighter;
   font-size: 3rem;
-  font-weight: normal;
-  margin: 10rem 0 1rem 0;
 }
 
-header > button {
-  border-radius: var(--standard-border-radius);
-  background-color: var(--blue);
-  color: var(--white);
-  font-size: 1.8rem;
-  margin-bottom: 2rem;
-  padding: 1rem 2rem;
-}
-header > button:hover {
-  background-color: var(--blue-hover);
+#user-spinner {
+  font-size: 2.5rem;
 }
 
-.book-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.book-container > div:first-child {
-  font-weight: bold;
-}
-
-.book {
-  font-family: sans-serif;
-  border-bottom: 1px solid var(--grey-opac);
+#user-container {
   display: flex;
   align-items: center;
-  padding: 2rem 0 2rem 0;
-  gap: var(--gap-book);
-  width: 60%;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-.book > div {
-  width: calc((100% - (var(--gap-book) * 5)) / 5);
-}
-.book > div:nth-child(3) {
-  width: calc((100% - (var(--gap-book) * 5)) / 10);
-}
-.book > div:nth-child(4) {
-  width: calc((100% - (var(--gap-book) * 5)) / 4);
-}
-.book > button {
-  width: calc((100% - (var(--gap-book) * 5)) / 8);
-  padding: 1rem;
+#user-pic {
+  width: 3rem;
+  height: 3rem;
   border-radius: var(--standard-border-radius);
 }
 
-.book-info {
-  font-style: italic;
-}
-
-.read {
-  background-color: var(--green);
-  color: var(--white);
-}
-.read:hover {
-  background-color: var(--green-hover);
-}
-
-.not-read {
+#sign-in,
+#sign-out,
+.read-status {
   background-color: var(--grey);
 }
-.not-read:hover {
+
+#sign-in:hover,
+#sign-out:hover,
+.read-status:hover {
   background-color: var(--grey-hover);
 }
 
-.remove-book {
-  background-color: var(--red);
-  color: var(--white);
+main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+  margin: 3rem 0;
 }
-.remove-book:hover {
-  background-color: var(--red-hover);
+
+#new-book {
+  font-size: 2rem;
+  padding: 1rem 2rem;
+  font-weight: bold;
+  color: var(--white);
+  background-color: var(--blue);
+}
+#new-book:hover {
+  background-color: var(--blue-hover);
 }
 
 form {
@@ -132,6 +134,8 @@ form {
 }
 
 form > input {
+  font-family: inherit;
+  font-size: 1.5rem;
   display: block;
   width: 90%;
   margin: 0 auto 1rem auto;
@@ -158,7 +162,13 @@ form > label {
   gap: 1rem;
 }
 
+.select label {
+  font-size: 1.5rem;
+}
+
 select {
+  font-family: inherit;
+  font-size: 1.5rem;
   padding: 0.5rem;
   border: 1px solid var(--grey-opac);
   border-radius: var(--standard-border-radius);
@@ -166,6 +176,7 @@ select {
 }
 
 form button {
+  font-weight: bold;
   padding: 1rem;
   border-radius: var(--standard-border-radius);
   background-color: var(--blue);
@@ -177,24 +188,77 @@ form button:hover {
   background-color: var(--blue-hover);
 }
 
-.overlay {
-  position: fixed;
-  display: none;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #00000080;
+#books-spinner {
+  font-size: 4rem;
+}
+
+#book-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--gap-book);
+  flex-wrap: wrap;
+}
+
+.book {
+  border: 2px solid #c0c0c0;
+  border-radius: var(--standard-border-radius);
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: 18rem 7rem;
+  align-items: center;
+}
+
+.book-title {
+  font-size: 2rem;
+}
+
+.book-author {
+  font-size: 1.2rem;
+}
+
+.book-pages {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  font-size: 1.2rem;
+  font-weight: lighter;
+  text-align: center;
+}
+
+.read-status,
+.remove-book {
+  margin-top: 2rem;
+}
+
+.read-status {
+  margin-right: 1rem;
+  font-weight: bold;
+}
+
+.read {
+  background-color: var(--green);
+  color: var(--white);
+}
+.read:hover {
+  background-color: var(--green-hover);
+}
+
+.remove-book {
+  color: var(--white);
+  background-color: var(--red);
+}
+.remove-book:hover {
+  background-color: var(--red-hover);
 }
 
 footer {
-  position: absolute;
-  width: 100%;
-  bottom: 1rem;
-  z-index: -1;
-  text-align: center;
-  text-shadow: 0 0 1px var(--blue);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
+
 footer a {
   text-decoration: none;
   font-weight: bold;
@@ -202,4 +266,11 @@ footer a {
 }
 footer a:hover {
   text-decoration: underline;
+}
+
+.fa-github {
+  transition: all 500ms ease;
+}
+.fa-github:hover {
+  transform: rotate(360deg) scale(1.2);
 }
