@@ -18,15 +18,17 @@
     <header>
       <h1>My Library</h1>
 
-      <button id="new-book">New Book</button>
-
       <div id="user-container">
-        <i class="fa-solid fa-spinner fa-spin-pulse"></i>
+        <i id="user-spinner" class="fa-solid fa-spinner fa-spin"></i>
         <img hidden="true" id="user-pic" />
-        <div hidden="true" id="user-name"></div>
+        <p hidden="true" id="user-name"></p>
         <button hidden="true" id="sign-in">Sign In</button>
         <button hidden="true" id="sign-out">Sign Out</button>
       </div>
+    </header>
+
+    <main>
+      <button id="new-book">New Book</button>
 
       <form>
         <h2>New Book</h2>
@@ -68,16 +70,10 @@
 
         <button>Add Book</button>
       </form>
-    </header>
 
-    <main class="book-container">
-      <div class="book">
-        <div>Title</div>
-        <div>Author</div>
-        <div>Pages</div>
-        <div>Info</div>
-        <div>Status</div>
-      </div>
+      <i id="books-spinner" class="fa-solid fa-spinner fa-spin"></i>
+
+      <div id="book-container"></div>
     </main>
 
     <footer>
