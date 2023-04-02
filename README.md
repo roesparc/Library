@@ -2,12 +2,21 @@
 
 ## [Live Demo](https://roesparc.github.io/Library/)
 
-<img alt="Library preview" src="./img/library-preview.jpg"/>
+![preview](https://user-images.githubusercontent.com/52899682/229324149-8436b6c0-90b7-49e8-96fa-8cc9824edfb3.jpg)
 
-The goal of this simple project is to showcase the usage of object constructors and prototypes.
+The main goal of this project is to showcase the usage of classes and constructors. The app utilizes Firebase to authenticate users and store their books in the cloud.
 
 ### Features
-- A function that loops through the array and displays each book prototype on the page
-- A form that allows the user to add new books
-- A button to change the read status of the book
-- A delete button
+
+- Easy-to-navigate form for adding new books
+- Toggle button to set a book's status to "Read" or "Not Read"
+- Button for deleting books
+
+### Featured Implementations
+
+- Firebase Firestore for storing users books
+- Firebase Authentication for user login
+
+### Acknowledgments
+
+This [project](https://www.theodinproject.com/lessons/node-path-javascript-library) ([Firebase feature](https://www.theodinproject.com/lessons/javascript-using-baas-for-your-back-end#assignment)) was created as part of The Odin Project's curriculum. Special thanks to the curriculum authors and the open source community for their contributions.
